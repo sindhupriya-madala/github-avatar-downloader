@@ -61,9 +61,9 @@ getRepoContributors("jQuery", "jQuery", function(err, result) {
   // for(var contributor of result) {
   //   console.log("avatar_url is : ", contributor.avatar_url);
   // }
-  result.forEach(function({ avatar_url }) {
+  result.forEach(function({ avatar_url, login }) {
     console.log(avatar_url);
-    downloadImageByURL("https://avatars2.githubusercontent.com/u/2741?v=3&s=466", "./example.jpg")
+    downloadImageByURL(avatar_url, "./avatar/"+login+".jpg");
 
   })
 });
