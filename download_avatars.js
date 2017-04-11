@@ -1,15 +1,56 @@
 const request = require('request');
 
+const gitDetails = require('./config.js');
 console.log('Welcome to the GitHub Avatar Downloader!');
-var GITHUB_USER = "sindhupriya-madala";
-var GITHUB_TOKEN = "7438b7051d4f103c14d43181ecfc53a7a48a03eb";
+var GITHUB_USER = gitDetails.git_user;
+var GITHUB_TOKEN = gitDetails.githubToken;
+
+console.log("GITHUB_USER", GITHUB_USER);
+console.log("GITHUB_TOKEN", GITHUB_TOKEN);
 function getRepoContributors(repoOwner, repoName, cb) {
- const requestURL = 'https://'+ GITHUB_USER + ':' + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
- console.log(requestURL);
+  const requestURL = 'https://'+ GITHUB_USER + ':' + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
+  console.log(requestURL);
+
+  var options = {
+    url : requestURL,
+    headers : {
+      'User-Agent' : "GitHub Avatar Downloader - Student Project"
+    }
+  };
+
+  request.get(options)
+        .on('error', function (err) {
+          throw err;
+        })
+        .on('response', function (response) {
+          let responseData = '';
+          console.log('Response message is : ', response.statusMessage);
+
+          response.on('data',(chunk) => {
+            responseData += chunk;
+          });
+
+          response.on('end', () => {
+            var jsonObj = JSON.parse(responseData);
+            cb("err",jsonObj);
+          })
+
+        });
 }
 
 getRepoContributors("jQuery", "jQuery", function(err, result) {
-  console.log("error is , ", error );
-  console.log("result is ,", result);
+  // FOR IN
+  // for(var res in result) {
+  //     const contributor = result[res];
+  //     console.log(contributor.avatar_url);
+  // }
+
+  // FOR OF
+  // for(var contributor of result) {
+  //   console.log("avatar_url is : ", contributor.avatar_url);
+  // }
+  result.forEach(function({ avatar_url }) {
+    console.log(avatar_url);
+  })
 });
 
