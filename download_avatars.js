@@ -14,6 +14,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
   const requestURL = 'https://'+ GITHUB_USER + ':' + GITHUB_TOKEN + '@api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
   console.log(requestURL);
 
+  // preparing request header with url and header
   var options = {
     url : requestURL,
     headers : {
@@ -21,6 +22,7 @@ function getRepoContributors(repoOwner, repoName, cb) {
     }
   };
 
+  // request method
   request.get(options)
         .on('error', function (err) {
           throw err;
@@ -28,19 +30,21 @@ function getRepoContributors(repoOwner, repoName, cb) {
         .on('response', function (response) {
           let responseData = '';
           console.log('Response message is : ', response.statusMessage);
-
+          //collecting all chunks of data into response object.
           response.on('data',(chunk) => {
             responseData += chunk;
           });
 
           response.on('end', () => {
+            //creating JSON object from responceData.
             var jsonObj = JSON.parse(responseData);
-            cb("err",jsonObj);
+            cb(jsonObj);
           })
 
         });
 }
 
+//method to download image from given url and save in the specified path.
 function downloadImageByURL(url, filePath) {
   request.get(url)
          .on('error', () => {
@@ -51,10 +55,11 @@ function downloadImageByURL(url, filePath) {
          })
          .pipe(fs.createWriteStream(filePath));
 }
+//collecting owner and repo names from argument list.
 const owner = process.argv[2];
 const repo = process.argv[3];
 
-getRepoContributors(owner, repo, function(err, result) {
+getRepoContributors(owner, repo, function(result) {
   // FOR IN
   // for(var res in result) {
   //     const contributor = result[res];
@@ -65,6 +70,7 @@ getRepoContributors(owner, repo, function(err, result) {
   // for(var contributor of result) {
   //   console.log("avatar_url is : ", contributor.avatar_url);
   // }
+  //collecting avatar_url and login from each object from json array.
   result.forEach(function({ avatar_url, login }) {
     console.log(avatar_url);
     downloadImageByURL(avatar_url, "./avatar/"+login+".jpg");
